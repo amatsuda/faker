@@ -10,6 +10,24 @@ Dir.glob(File.join(mydir, 'helpers', '*.rb')).sort.each { |file| require file }
 I18n.load_path += Dir[File.join(mydir, 'locales', '**/*.yml')]
 
 module Faker
+  # Defining our own version of LazyLoadable Backend that loads YAML files that conform our path rule
+  LazyLoadableI18nBackend = I18n::Backend::LazyLoadable.dup
+
+  class LazyLoadableI18nBackend
+    class LocaleExtractor < ::I18n::Backend::LocaleExtractor
+      class << self
+        # Assume the file is for xx locale if the file is named xx.yml or xx/foobar.yml
+        def locale_from_path(path)
+          if path.match(%r[/lib/locales/(..|..-.*?)/.*\.yml$])
+            return $1.to_sym
+          else
+            super
+          end
+        end
+      end
+    end
+  end
+
   module Config
     @default_locale = nil
 
