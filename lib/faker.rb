@@ -28,6 +28,10 @@ module Faker
     end
   end
 
+  # Append our lazy loadable backend as a falllback via chain backend
+  lazy_loadable_backend = LazyLoadableI18nBackend.new(lazy_load: true)
+  I18n.backend = I18n::Backend::Chain.new(I18n.backend, lazy_loadable_backend)
+
   module Config
     @default_locale = nil
 
@@ -181,7 +185,7 @@ module Faker
         opts[:locale] ||= Faker::Config.locale
         opts[:raise] = true
         I18n.translate(*args, **opts)
-      rescue I18n::MissingTranslationData
+      rescue I18n::MissingTranslationData, I18n::InvalidLocale
         opts[:locale] = :en
 
         # Super-simple fallback -- fallback to en if the
