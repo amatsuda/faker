@@ -26,6 +26,15 @@ module Faker
         end
       end
     end
+
+    # Memoize available_locales for speed
+    prepend Module.new {
+      def available_locales
+        @lazy_available_locales ||= begin
+          super
+        end
+      end
+    }
   end
 
   # Append our lazy loadable backend as a falllback via chain backend
